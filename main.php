@@ -32,28 +32,31 @@
 		} elseif (isset($_POST['accueil'])) {
 			ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
 		} elseif (isset($_POST['synthese'])) {
-			ctlSyntheseClient($_POST['idclient']);
-		} elseif (isset($_POST['modifierClient'])) {
-			ctlMettreAJourClient($_POST);
-			ctlSyntheseClient($_SESSION['client']->idClient);
-		} elseif (isset($_POST['ajouterClient'])) {
-			$infos=array();
-			foreach($_POST as $key => $val){
-				if($key != 'ajouterClient'){
-					if($key == 'dateNaiss'){
-						$infos[$key] = date($val);
-					} else{
-						$infos[$key] = $val;
-					}
+            ctlSyntheseClient($_POST['idclient']);
+        } elseif (isset($_POST['modifierClient'])) {
+            ctlMettreAJourClient($_POST);
+            ctlSyntheseClient($_SESSION['client']->idClient);
+        } elseif (isset($_POST['ajouterClient'])) {
+            $infos=array();
+            foreach($_POST as $key => $val){
+                if($key != 'ajouterClient'){
+                    if($key == 'dateNaiss'){
+                        $infos[$key] = date($val);
+                    } else{
+                        $infos[$key] = $val;
+                    }
 
-				}
-			}
+                }
+            }
 
-			ctlAjouterClient($infos);
-			ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
-		} else {
-			ctlAcceuil();
-		}
+            ctlAjouterClient($infos);
+            ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+        } elseif (isset($_POST['creerCompte'])) {
+
+            ctlCreerCompte($_POST['nomEmploye'],$_POST['login'],$_POST['motDePasse'],$_POST['categorie']);
+        }else {
+            ctlAcceuil();
+        }
 
 	} catch (ExceptionLogin $e) {
 		$msg = $e->getMessage();
@@ -62,20 +65,28 @@
 		$msg = $e->getMessage();
 		$_SESSION['erreurMontant'] = $msg;
 		ctlGestionFinanciere($_SESSION['client']->idClient);
-	} catch (ExceptionClientNonTrouve $e) {
-		$msg = $e->getMessage();
-		$_SESSION['erreurClient'] = $msg;
-		ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
 	} catch (ExceptionIdNonTrouveGF $e) {
-		$msg = $e->getMessage();
-		$_SESSION['erreurIdGF'] = $msg;
-		ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
-	} catch (ExceptionIdNonTrouveSynthese $e) {
-		$msg = $e->getMessage();
-		$_SESSION['erreurIdSynthese'] = $msg;
-		ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
-	} catch (ExceptionClientExiste $e) {
-		$msg = $e->getMessage();
-		$_SESSION['erreurClientExiste'] = $msg;
-		ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
-	}
+        $msg = $e->getMessage();
+        $_SESSION['erreurIdGF'] = $msg;
+        ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+    } catch (ExceptionIdNonTrouveSynthese $e) {
+        $msg = $e->getMessage();
+        $_SESSION['erreurIdSynthese'] = $msg;
+        ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+    } catch (ExceptionClientExiste $e) {
+        $msg = $e->getMessage();
+        $_SESSION['erreurClientExiste'] = $msg;
+        ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+    }catch (ExceptionIdNonTrouveGF $e) {
+        $msg = $e->getMessage();
+        $_SESSION['erreurIdGF'] = $msg;
+        ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+    } catch (ExceptionIdNonTrouveSynthese $e) {
+        $msg = $e->getMessage();
+        $_SESSION['erreurIdSynthese'] = $msg;
+        ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+    } catch (ExceptionClientExiste $e) {
+        $msg = $e->getMessage();
+        $_SESSION['erreurClientExiste'] = $msg;
+        ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+    }

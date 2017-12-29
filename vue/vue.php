@@ -162,12 +162,30 @@
 		require_once("vue/gabarit.php");
 	}
 
-	function afficherErreur($n)
-	{
-		$erreur = '';
-		if (isset($_SESSION[$n]) && !empty($_SESSION[$n])) {
-			$erreur = '<p> ' . $_SESSION[$n] . '</p>';
-			unset($_SESSION[$n]);
-		}
-		return $erreur;
-	}
+function afficherAccueilDirecteur(){
+    $header = '<form action = "main.php" method = "post" ><p > ' . $_SESSION['empl']->nomEmploye .
+        ' <input type = "submit" name = "accueil" value = "Accueil" />
+		<input type = "submit" name = "deco" value = "Déconnexion" /></p ></form > ';
+    $contenu = '<form id = "interventions" action = "main.php" method = "post" >
+				 <fieldset ><legend > Creation d\'un compte  </legend >
+				<p><label>nomEmploye</label><input name="nomEmploye" type = "text"  required  /></p>
+				<p><label>login</label><input name="login" type = "text" required /></p>
+				<p><label>motDePasse</label><input name="motDePasse" type = "text"required /></p>
+				<p><label>categorie</label><input type = "text" name = "categorie" required /></p>
+				<p><input type = "submit" name = "creerCompte" value = "Creer un compte" /></p>';
+    $contenu .= afficherErreur('erreurExiste');
+    $contenu .= afficherErreur('erreurCat');
+    $contenu.='</fieldset></form>';
+    require_once("vue/gabarit.php");
+
+}
+
+function afficherErreur($n)
+{
+    $erreur = '';
+    if (isset($_SESSION[$n]) && !empty($_SESSION[$n])) {
+        $erreur = '<p> ' . $_SESSION[$n] . '</p>';
+        unset($_SESSION[$n]);
+    }
+    return $erreur;
+}
