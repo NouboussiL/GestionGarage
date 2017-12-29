@@ -46,16 +46,24 @@
             ctlAcceuil();
         }
 
-	} catch (ExceptionLogin $e) {
-		$msg = $e->getMessage();
-		CtlErreur($msg);
-	} catch (ExceptionMontatnDepasse $e) {
-		$msg = $e->getMessage();
-		$_SESSION['erreurMontant'] = $msg;
-		ctlGestionFinanciere($_SESSION['client']->idClient);
-	} catch (ExceptionIdNonTrouveGF $e) {
+	}catch (ExceptionLogin $e) {
         $msg = $e->getMessage();
-        $_SESSION['erreurIdGF'] = $msg;
+        CtlErreur($msg);
+    } catch (ExceptionMontatnDepasse $e) {
+        $msg = $e->getMessage();
+        $_SESSION['erreurMontant'] = $msg;
+        ctlGestionFinanciere($_SESSION['client']->idClient);
+    } catch (ExceptionClientNonTrouve $e) {
+        $msg = $e->getMessage();
+        $_SESSION['erreurClient'] = $msg;
+        ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+    } catch (ExceptionEmployeExisteDeja $e) {
+        $msg = $e->getMessage();
+        $_SESSION['erreurExiste'] = $msg;
+        ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+    } catch (ExceptionCategorie $e) {
+        $msg = $e->getMessage();
+        $_SESSION['erreurCat'] = $msg;
         ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
     } catch (ExceptionIdNonTrouveSynthese $e) {
         $msg = $e->getMessage();
@@ -65,12 +73,8 @@
         $msg = $e->getMessage();
         $_SESSION['erreurClientExiste'] = $msg;
         ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
-    }catch (ExceptionEmployeExisteDeja $e) {
+    } catch (ExceptionIdNonTrouveGF $e) {
         $msg = $e->getMessage();
-        $_SESSION['erreurExiste'] = $msg;
-        ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
-    } catch (ExceptionCategorie $e) {
-        $msg = $e->getMessage();
-        $_SESSION['erreurCat'] = $msg;
+        $_SESSION['erreurIdGF'] = $msg;
         ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
     }
