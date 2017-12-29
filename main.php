@@ -65,18 +65,6 @@
         $msg = $e->getMessage();
         $_SESSION['erreurClientExiste'] = $msg;
         ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
-    }catch (ExceptionIdNonTrouveGF $e) {
-        $msg = $e->getMessage();
-        $_SESSION['erreurIdGF'] = $msg;
-        ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
-    } catch (ExceptionIdNonTrouveSynthese $e) {
-        $msg = $e->getMessage();
-        $_SESSION['erreurIdSynthese'] = $msg;
-        ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
-    } catch (ExceptionClientExiste $e) {
-        $msg = $e->getMessage();
-        $_SESSION['erreurClientExiste'] = $msg;
-        ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
     }catch (ExceptionEmployeExisteDeja $e) {
         $msg = $e->getMessage();
         $_SESSION['erreurExiste'] = $msg;
