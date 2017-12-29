@@ -77,4 +77,12 @@
         $msg = $e->getMessage();
         $_SESSION['erreurClientExiste'] = $msg;
         ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+    }catch (ExceptionEmployeExisteDeja $e) {
+        $msg = $e->getMessage();
+        $_SESSION['erreurExiste'] = $msg;
+        ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+    } catch (ExceptionCategorie $e) {
+        $msg = $e->getMessage();
+        $_SESSION['erreurCat'] = $msg;
+        ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
     }
