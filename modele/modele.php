@@ -120,9 +120,7 @@ function modifierClient($id,$modifs)
 
 function getInterventionsPasses($id){
 	$connexion = getConnect();
-	$requete = "select *  from intervention natural join typeintervention where idClient=$id and 
-dateIntervention<=curdate() and 
-heureIntervention+1 < hour(now()) order by dateIntervention desc";
+	$requete = "select *  from intervention natural join typeintervention where idClient=$id and dateIntervention<=curdate() and  heureIntervention+1 < hour(now()) order by dateIntervention desc";
 	$resultat = $connexion->query($requete);
 	$resultat->setFetchMode(5);
 	$inters = $resultat->fetchAll();
