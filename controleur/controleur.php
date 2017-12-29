@@ -16,7 +16,12 @@
 
 	}
 
-	class ExceptionIdNonTrouve extends Exception
+	class ExceptionIdNonTrouveGF extends Exception
+	{
+
+	}
+
+	class ExceptionIdNonTrouveSynthese extends Exception
 	{
 
 	}
@@ -24,6 +29,8 @@
 	class ExceptionClientNonTrouve extends Exception
 	{
 	}
+
+	class ExceptionClientExiste extends Exception{}
 
 	function ctlPayerDerniere()
 	{
@@ -98,33 +105,44 @@
 			$_SESSION['client'] = $client;
 			$diff = getInterDiff($id);
 			$enatt = getInterEnAttente($id);
+			$sommediff=0;
+			foreach ($diff as $intd) {
+				$sommediff += $intd->montant;
+			}
+			$_SESSION['diffEnCours'] = $sommediff;
 			afficherGestionFinanciere($diff, $enatt);
 		} else {
-			throw new ExceptionIdNonTrouve("Id non trouvé");
+			throw new ExceptionIdNonTrouveGF("Id non trouvé");
 		}
 	}
 
-	function ctlMettreAJourClient()
+	function ctlMettreAJourClient($infos)
 	{
-		$infos=array("nom","prenom","dateNaiss","adresse","numTel","mail","montantMax");
-		foreach ($infos as $i){
-			if(!empty($_POST[$i])){
+		$modifs=array();
+		$client =(array)$_SESSION['client'];
+		foreach($infos as $key=>$val){
 
+			if($key != 'modifierClient' && $val != $client[$key]){
+				$modifs[$key]=$val;
 			}
 		}
-
-		foreach($_POST as $key=>$val){
-			if($val != $_SESSION[$key]){
-
-			}
+		if(!empty($modifs)){
+			modifierClient($client['idClient'],$modifs);
 		}
 	}
 
 	function ctlSyntheseClient($id)
 	{
-		$client=ctlGetClient($id);
-		$_SESSION['client']=$client;
-		afficherSynthese($client);
+		if($client=ctlGetClient($id)) {
+			$_SESSION['client'] = $client;
+			$interventions = getInterventionsPasses($id);
+			$diff = getInterDiff($id);
+			$sommediff = 0;
+			foreach ($diff as $intd) {
+				$sommediff += $intd->montant;
+			}
+			afficherSynthese($client,$interventions,$sommediff,$client->montantMax-$sommediff);
+		}else throw new ExceptionIdNonTrouveSynthese("Id non trouvé");
 	}
 
 	function ctlGetClient($id)
@@ -141,6 +159,16 @@
 			throw new ExceptionClientNonTrouve("Aucun client " . $nom . " né le " . $dateNaiss . " trouvé.");
 		}
 
+	}
+
+	function ctlAjouterClient($infos){
+		if(!ctlExisteClient($infos['nom'],$infos['prenom'],$infos['dateNaiss'])){
+			ajouterClient($infos);
+		}else throw new ExceptionClientExiste("Le client existe déjà.");
+	}
+
+	function ctlExisteClient($nom,$prenom,$date){
+		return !empty($client=existeClient($nom,$prenom,$date));
 	}
 
 	function CtlErreur($erreur)

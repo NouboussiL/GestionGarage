@@ -24,7 +24,7 @@
         </p>
         <p><input type="submit" name="gestionF"/></p>';
 
-		$contenu .= afficherErreur('erreurId');
+		$contenu .= afficherErreur('erreurIdGF');
 
 		$contenu .= '</fieldset></form><form id="monForm2" action="main.php" method="post">
 	<fieldset>
@@ -35,9 +35,10 @@
 
 		<p>
 			<input type="submit" name="synthese" value="Synthèse client"/>
-		</p>
+		</p>';
+		$contenu .= afficherErreur('erreurIdSynthese');
 
-	</fieldset>
+	$contenu.='</fieldset>
 	</form>
 	<form id="rechercheID" action="main.php" method="post"/>
 	<fieldset>
@@ -61,12 +62,24 @@
 
 		$contenu .= '</fieldset>
 	</form>';
+		$contenu .= '<form action="main.php" method="post"><fieldset><legend>Ajouter client</legend>
+				<p><label>Nom</label><input name="nom" type = "text" required/></p>
+				<p><label>Prenom</label><input name="prenom" type = "text" required/></p>
+				<p><label>Date de naissance</label><input name="dateNaiss" type = "date" required/></p>
+				<p><label>Adresse</label><input name="adresse" type = "text"/></p>
+				<p><label>Téléphone</label><input name="numTel" type = "text"/></p>
+				<p><label>E-mail</label><input name="mail" type = "text"/></p>
+				<p><label>Montant max</label><input name="montantMax" type = "text" required/></p>
+				<input type = "submit" name = "ajouterClient" value = "Ajouter Client" />';
+		$contenu .= afficherErreur('erreurClientExiste');
+		$contenu.='</fieldset></form>';
+
 
 		require_once("vue/gabarit.php");
 
 	}
 
-	function afficherSynthese($client)
+	function afficherSynthese($client,$interventions,$somme,$dispo)
 	{
 		$header = '<form action="main.php" method="post"><p>' . $_SESSION['empl']->nomEmploye .
 			'<input type="submit" name="accueil" value="Accueil"/>
@@ -74,24 +87,43 @@
 
 		$contenu = '';
 
-		$contenu .= '<form action="main.php" method="post">
-				<input name="nom" type = "text" value = "' . $client->nom . '" />
-				<input name="prenom" type = "text" value = "' . $client->prenom . '" />
-				<input name="dateNaiss" type = "date" value = "' . $client->dateNaiss . '" />
-				<input name="adresse" type = "text" value = "' . $client->adresse . '" />
-				<input name="numTel" type = "text" value = "' . $client->numTel . '" />
-				<input name="mail" type = "text" value = "' . $client->mail . '" />
-				<input name="montantMax" type = "text" value = "' . $client->montantMax . '" />
+		$contenu .= '<form action="main.php" method="post"><fieldset><legend>Synthèse client</legend>
+				<p><label>Nom</label><input name="nom" type = "text" value = "' . $client->nom . '" /></p>
+				<p><label>Prenom</label><input name="prenom" type = "text" value = "' . $client->prenom . '" /></p>
+				<p><label>Date de naissance</label><input name="dateNaiss" type = "date" value = "' . $client->dateNaiss . '" /></p>
+				<p><label>Adresse</label><input name="adresse" type = "text" value = "' . $client->adresse . '" /></p>
+				<p><label>Téléphone</label><input name="numTel" type = "text" value = "' . $client->numTel . '" /></p>
+				<p><label>E-mail</label><input name="mail" type = "text" value = "' . $client->mail . '" /></p>
+				<p><label>Montant max</label><input name="montantMax" type = "text" value = "' . $client->montantMax . '" /></p>
 				<input type = "submit" name = "modifierClient" value = "Mettre a jour" />
 
-				</form>';
+				</fieldset></form>';
 
+		$contenu.='<p>Montant différé en cours : '.$somme.'€</p>';
+		$contenu.='<p>Crédit possible restant : '.$dispo.'</p>';
+
+		$contenu.='<fieldset><legend>Interventions réalisées</legend>';
+		if(!empty($interventions)) {
+			$contenu.='<table>
+						<tr>
+							<th>Date</th>
+							<th>Type</th>
+							<th>Mécanicien</th>
+							<th>Etat</th>
+							<th>Montant</th>
+						</tr>';
+			foreach ($interventions as $inter) {
+				$contenu .= '<tr><td>' . $inter->dateIntervention .'</td><td>' . $inter->nomTI .  '</td><td>' . $inter->nomMeca . '</td><td>' . $inter->etat . '</td><td>' . $inter->montant . '</td></tr>';
+			}
+			$contenu.='</table>';
+		}else $contenu.='<p>Aucune intervetion n\'a été réalisée.</p>';
+		$contenu.='</fieldset>';
 		require_once("vue/gabarit.php");
 	}
 
 	function afficherGestionFinanciere($diff, $enatt)
 	{
-		$header = ' < form action = "main.php" method = "post" ><p > ' . $_SESSION['empl']->nomEmploye . ' < input type = "submit" name = "accueil" value = "Accueil" /><input type = "submit" name = "deco" value = "Déconnexion" /></p ></form > ';
+		$header = '<form action = "main.php" method = "post" ><p > ' . $_SESSION['empl']->nomEmploye . ' <input type = "submit" name = "accueil" value = "Accueil" /><input type = "submit" name = "deco" value = "Déconnexion" /></p ></form > ';
 		$contenu = '<form id = "interventions" action = "main.php" method = "post" >
         <fieldset ><legend > Interventions client : ' . $_SESSION['client']->nom . ' </legend > ';
 		if (!empty($diff) || !empty($enatt)) {
@@ -106,9 +138,8 @@
                 </p > ';
 			}
 
-			$sommedif = 0;
+
 			foreach ($diff as $intd) {
-				$sommedif += $intd->montant;
 				$contenu .= '
                 <p >
                     <input type = "checkbox" name = "checkInter[]" value = "' . $intd->code . '" />
@@ -117,8 +148,7 @@
                 </p > ';
 
 			}
-			$_SESSION['diffEnCours'] = $sommedif;
-			$contenu .= ' < p>
+			$contenu .= ' <p>
         <input type = "submit" name = "payer" value = "Payer" />
         <input type = "submit" name = "differer" value = "Differer" />
         </p > ';

@@ -88,3 +88,57 @@ function getIdClient($nom,$date){
     $resultat->closeCursor();
     return $client;
 }
+
+function modifierClient($id,$modifs)
+{
+	$connexion = getConnect();
+	$requete = "update client set ";
+	foreach($modifs as $key=>$val){
+		$requete.=" $key='$val' ,";
+	}
+	$requete = substr($requete,0,strlen($requete)-1);
+	$requete.=" where idClient=$id";
+	$resultat = $connexion->query($requete);
+	$resultat->closeCursor();
+}
+
+function getInterventionsPasses($id){
+	$connexion = getConnect();
+	$requete = "select *  from intervention natural join typeintervention where idClient=$id and 
+dateIntervention<=curdate() and 
+heureIntervention+1 < hour(now()) order by dateIntervention desc";
+	$resultat = $connexion->query($requete);
+	$resultat->setFetchMode(5);
+	$inters = $resultat->fetchAll();
+	$resultat->closeCursor();
+	return $inters;
+}
+
+function existeClient($nom,$prenom,$date){
+	$connexion = getConnect();
+	$requete = "select *  from client where dateNaiss='$date' and nom='$nom' and prenom='$prenom'";
+	$resultat = $connexion->query($requete);
+	$resultat->setFetchMode(5);
+	$client = $resultat->fetch();
+	$resultat->closeCursor();
+	return $client;
+}
+
+function ajouterClient($infos){
+	$connexion = getConnect();
+	$requete = "insert into client (";
+	foreach ($infos as $key => $val) {
+		$requete .= "$key,";
+	}
+	$requete = substr($requete, 0, strlen($requete) - 1);
+	$requete .= ") values (";
+	foreach ($infos as $key => $val) {
+		$requete .= "'$val',";
+	}
+	$requete = substr($requete, 0, strlen($requete) - 1);
+	$requete .= ")";
+	$resultat = $connexion->query($requete);
+	$resultat->closeCursor();
+}
+
+

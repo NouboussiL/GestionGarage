@@ -34,7 +34,23 @@
 		} elseif (isset($_POST['synthese'])) {
 			ctlSyntheseClient($_POST['idclient']);
 		} elseif (isset($_POST['modifierClient'])) {
-			ctlMettreAJourClient($_POST['idclient']);
+			ctlMettreAJourClient($_POST);
+			ctlSyntheseClient($_SESSION['client']->idClient);
+		} elseif (isset($_POST['ajouterClient'])) {
+			$infos=array();
+			foreach($_POST as $key => $val){
+				if($key != 'ajouterClient'){
+					if($key == 'dateNaiss'){
+						$infos[$key] = date($val);
+					} else{
+						$infos[$key] = $val;
+					}
+
+				}
+			}
+
+			ctlAjouterClient($infos);
+			ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
 		} else {
 			ctlAcceuil();
 		}
@@ -50,8 +66,16 @@
 		$msg = $e->getMessage();
 		$_SESSION['erreurClient'] = $msg;
 		ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
-	} catch (ExceptionIdNonTrouve $e) {
+	} catch (ExceptionIdNonTrouveGF $e) {
 		$msg = $e->getMessage();
-		$_SESSION['erreurId'] = $msg;
+		$_SESSION['erreurIdGF'] = $msg;
+		ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+	} catch (ExceptionIdNonTrouveSynthese $e) {
+		$msg = $e->getMessage();
+		$_SESSION['erreurIdSynthese'] = $msg;
+		ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+	} catch (ExceptionClientExiste $e) {
+		$msg = $e->getMessage();
+		$_SESSION['erreurClientExiste'] = $msg;
 		ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
 	}
