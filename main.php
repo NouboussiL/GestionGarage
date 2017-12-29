@@ -1,0 +1,57 @@
+<?php
+	try {
+		require_once("controleur/controleur.php");
+		session_start();
+
+		if (isset($_POST['connexion'])) {
+			ctlAfficherPageCorrespondante($_POST['login'], $_POST['motdepasse']);
+
+		} elseif (isset($_POST['gestionF'])) {
+			ctlGestionFinanciere($_POST['idclientGF']);
+
+		} elseif (isset($_POST['payerDer'])) {
+			ctlPayerDerniere();
+			ctlGestionFinanciere($_SESSION['client']->idClient);
+
+		} elseif (isset($_POST['payer'])) {
+			ctlPayerInter($_POST['checkInter']);
+			ctlGestionFinanciere($_SESSION['client']->idClient);
+
+		} elseif (isset($_POST['differer'])) {
+			ctlDiffererInter($_POST['checkInter']);
+			ctlGestionFinanciere($_SESSION['client']->idClient);
+
+		} elseif (isset($_POST['rechercheID'])) {
+			$nom = $_POST['nomclient'];
+			$dateNaiss = date($_POST['dateNaiss']);
+			ctlGetIdClient($nom, $dateNaiss);
+			ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+		} elseif (isset($_POST['deco'])) {
+			session_destroy();
+			ctlAcceuil();
+		} elseif (isset($_POST['accueil'])) {
+			ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+		} elseif (isset($_POST['synthese'])) {
+			ctlSyntheseClient($_POST['idclient']);
+		} elseif (isset($_POST['modifierClient'])) {
+			ctlMettreAJourClient($_POST['idclient']);
+		} else {
+			ctlAcceuil();
+		}
+
+	} catch (ExceptionLogin $e) {
+		$msg = $e->getMessage();
+		CtlErreur($msg);
+	} catch (ExceptionMontatnDepasse $e) {
+		$msg = $e->getMessage();
+		$_SESSION['erreurMontant'] = $msg;
+		ctlGestionFinanciere($_SESSION['client']->idClient);
+	} catch (ExceptionClientNonTrouve $e) {
+		$msg = $e->getMessage();
+		$_SESSION['erreurClient'] = $msg;
+		ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+	} catch (ExceptionIdNonTrouve $e) {
+		$msg = $e->getMessage();
+		$_SESSION['erreurId'] = $msg;
+		ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
+	}
