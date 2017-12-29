@@ -179,7 +179,17 @@ function ctlCreerCompte(){
 
 	}
 
-	function ctlAjouterClient($infos){
+	function ctlAjouterClient(){
+        $infos=array();
+        foreach($_POST as $key => $val){
+            if($key != 'ajouterClient'){
+                if($key == 'dateNaiss'){
+                    $infos[$key] = date($val);
+                } else{
+                    $infos[$key] = $val;
+                }
+            }
+        }
 		if(!ctlExisteClient($infos['nom'],$infos['prenom'],$infos['dateNaiss'])){
 			ajouterClient($infos);
 		}else throw new ExceptionClientExiste("Le client existe déjà.");

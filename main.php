@@ -37,19 +37,7 @@
             ctlMettreAJourClient($_POST);
             ctlSyntheseClient($_SESSION['client']->idClient);
         } elseif (isset($_POST['ajouterClient'])) {
-            $infos=array();
-            foreach($_POST as $key => $val){
-                if($key != 'ajouterClient'){
-                    if($key == 'dateNaiss'){
-                        $infos[$key] = date($val);
-                    } else{
-                        $infos[$key] = $val;
-                    }
-
-                }
-            }
-
-            ctlAjouterClient($infos);
+            ctlAjouterClient();
             ctlAfficherPageCorrespondante($_SESSION['empl']->login, $_SESSION['empl']->motDePasse);
         } elseif (isset($_POST['creerCompte'])) {
 
