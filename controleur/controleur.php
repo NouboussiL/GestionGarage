@@ -16,19 +16,20 @@
 
 	}
 
-	class ExceptionIdNonTrouveGF extends Exception
+	class ExceptionIdNonTrouve extends Exception
 	{
 
 	}
 
-	class ExceptionIdNonTrouveSynthese extends Exception
-	{
+class ExceptionClientNonTrouve extends Exception
+{
+}
+class ExceptionEmployeExisteDeja extends Exception {
 
-	}
+}
+class ExceptionCategorie extends Exception {
 
-	class ExceptionClientNonTrouve extends Exception
-	{
-	}
+}
 
 	class ExceptionClientExiste extends Exception{}
 
@@ -69,10 +70,21 @@
 		}
 	}
 
-	function ctlGetEnAttente($inter)
-	{
-		return getEnAttente($inter);
-	}
+function ctlGetEnAttente($inter)
+{
+    return getEnAttente($inter);
+}
+function ctlCreerCompte(){
+    if( in_array($_POST['categorie'],array("mecanicien","directeur","agent"))){
+        if($empl=chercherEmploye($_POST['nomEmploye'],$_POST['login']) ==null){
+            creerCompte($_POST['nomEmploye'],$_POST['login'],$_POST['motDePasse'],$_POST['categorie']);
+        }else{
+            throw new ExceptionEmployeExisteDeja("Employe avec ce nom ou login existe deja");
+        }
+    }else{
+        throw new ExceptionCategorie("Categorie non autorise");
+    }
+}
 
 	function ctlAfficherPageCorrespondante($login, $motdepasse)
 	{
@@ -81,14 +93,15 @@
 		switch ($employe->categorie) {
 			case'agent':
 
-				afficherAccueilAgent($employe);
-				break;
-			case'mecanicien':
-				break;
-			case'directeur':
-				break;
-		}
-	}
+            afficherAccueilAgent($employe);
+            break;
+        case'mecanicien':
+            break;
+        case'directeur':
+            afficherAccueilDirecteur($employe);
+            break;
+    }
+}
 
 	function ctlChercherIdentifiantsEmploye($login, $motdepasse)
 	{
@@ -161,7 +174,17 @@
 
 	}
 
-	function ctlAjouterClient($infos){
+	function ctlAjouterClient(){
+        $infos=array();
+        foreach($_POST as $key => $val){
+            if($key != 'ajouterClient'){
+                if($key == 'dateNaiss'){
+                    $infos[$key] = date($val);
+                } else{
+                    $infos[$key] = $val;
+                }
+            }
+        }
 		if(!ctlExisteClient($infos['nom'],$infos['prenom'],$infos['dateNaiss'])){
 			ajouterClient($infos);
 		}else throw new ExceptionClientExiste("Le client existe déjà.");

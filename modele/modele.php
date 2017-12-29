@@ -21,7 +21,7 @@ function getEmploye($login, $motdepasse)
     $resultat->setFetchMode(5);
     $employe = $resultat->fetch();
     $resultat->closeCursor();
-	return $employe;
+    return $employe;
 
 }
 
@@ -61,7 +61,23 @@ function payerInter($code){
     $resultat = $connexion->query($requete);
     $resultat->closeCursor();
 }
+function creerCompte($nom,$login,$mdp,$categorie){
+    $connexion = getConnect();
+    $requete = " insert into employe VALUES ('$nom','$login','$mdp','$categorie')";
+    $resultat = $connexion->query($requete);
+    $resultat->closeCursor();
+}
 
+
+function chercherEmploye($nom,$login){
+    $connexion = getConnect();
+    $requete = "select *  from employe where login='$login' or nomEmploye='$nom'";
+    $resultat = $connexion->query($requete);
+    $resultat->setFetchMode(5);
+    $client = $resultat->fetch();
+    $resultat->closeCursor();
+    return $client;
+}
 function getEnAttente($inter){
     $connexion = getConnect();
     $requete = "select *  from intervention NATURAL JOIN typeintervention where code=$inter and etat='en attente de payement'";
@@ -73,10 +89,10 @@ function getEnAttente($inter){
 }
 
 function differer($inter){
-        $connexion = getConnect();
-        $requete = " update intervention set etat='differe' where code=$inter";
-        $resultat = $connexion->query($requete);
-        $resultat->closeCursor();
+    $connexion = getConnect();
+    $requete = " update intervention set etat='differe' where code=$inter";
+    $resultat = $connexion->query($requete);
+    $resultat->closeCursor();
 }
 
 function getIdClient($nom,$date){
@@ -104,9 +120,7 @@ function modifierClient($id,$modifs)
 
 function getInterventionsPasses($id){
 	$connexion = getConnect();
-	$requete = "select *  from intervention natural join typeintervention where idClient=$id and 
-dateIntervention<=curdate() and 
-heureIntervention+1 < hour(now()) order by dateIntervention desc";
+	$requete = "select *  from intervention natural join typeintervention where idClient=$id and dateIntervention<=curdate() order by dateIntervention desc";
 	$resultat = $connexion->query($requete);
 	$resultat->setFetchMode(5);
 	$inters = $resultat->fetchAll();
