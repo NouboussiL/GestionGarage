@@ -1,149 +1,167 @@
 <?php
-	require_once("vue/vue.php");
-	require_once("modele/modele.php");
-	function ctlAcceuil()
-	{
-		afficherAccueil();
-	}
+require_once("vue/vue.php");
+require_once("modele/modele.php");
+function ctlAcceuil()
+{
+    afficherAccueil();
+}
 
-	class ExceptionMontatnDepasse extends Exception
-	{
+class ExceptionMontatnDepasse extends Exception
+{
 
-	}
+}
 
-	class ExceptionLogin extends Exception
-	{
+class ExceptionLogin extends Exception
+{
 
-	}
+}
 
-	class ExceptionIdNonTrouve extends Exception
-	{
+class ExceptionIdNonTrouve extends Exception
+{
 
-	}
+}
 
-	class ExceptionClientNonTrouve extends Exception
-	{
-	}
+class ExceptionClientNonTrouve extends Exception
+{
+}
+class ExceptionEmployeExisteDeja extends Exception {
 
-	function ctlPayerDerniere()
-	{
-		$int = getInterEnAttente($_SESSION['client']->idClient);
-		if (!empty($int)) {
-			payerInter($int[0]->code);
-		}
-	}
+}
+class ExceptionCategorie extends Exception {
 
-	function ctlPayerInter($checkInter)
-	{
-		if (!empty($checkInter)) {
-			foreach ($checkInter as $inter) {
-				payerInter($inter);
-			}
-		}
-	}
+}
 
-	function ctlDiffererInter($checkInter)
-	{
-		$montant = 0;
-		$codes = [];
-		foreach ($checkInter as $inter) {
-			//parcours de tous les checkbox et recuperer ceux en attente
-			if (!empty($interEnAtt = ctlGetEnAttente($inter))) {
-				$montant = $montant + $interEnAtt->montant;
-				$codes[] = $inter;
-			}
-		}
-		if ($_SESSION['client']->montantMax - ($_SESSION['diffEnCours'] + $montant) >= 0) {
-			foreach ($codes as $inter) {
-				differer($inter);
-			}
-		} else {
-			throw new ExceptionMontatnDepasse("Montant autorisé est depassé");
-		}
-	}
+function ctlPayerDerniere()
+{
+    $int = getInterEnAttente($_SESSION['client']->idClient);
+    if (!empty($int)) {
+        payerInter($int[0]->code);
+    }
+}
 
-	function ctlGetEnAttente($inter)
-	{
-		return getEnAttente($inter);
-	}
+function ctlPayerInter($checkInter)
+{
+    if (!empty($checkInter)) {
+        foreach ($checkInter as $inter) {
+            payerInter($inter);
+        }
+    }
+}
 
-	function ctlAfficherPageCorrespondante($login, $motdepasse)
-	{
-		$employe = ctlChercherIdentifiantsEmploye($login, $motdepasse);
-		$_SESSION['empl'] = $employe;
-		switch ($employe->categorie) {
-			case'agent':
+function ctlDiffererInter($checkInter)
+{
+    $montant = 0;
+    $codes = [];
+    foreach ($checkInter as $inter) {
+        //parcours de tous les checkbox et recuperer ceux en attente
+        if (!empty($interEnAtt = ctlGetEnAttente($inter))) {
+            $montant = $montant + $interEnAtt->montant;
+            $codes[] = $inter;
+        }
+    }
+    if ($_SESSION['client']->montantMax - ($_SESSION['diffEnCours'] + $montant) >= 0) {
+        foreach ($codes as $inter) {
+            differer($inter);
+        }
+    } else {
+        throw new ExceptionMontatnDepasse("Montant autorisé est depassé");
+    }
+}
 
-				afficherAccueilAgent($employe);
-				break;
-			case'mecanicien':
-				break;
-			case'directeur':
-				break;
-		}
-	}
+function ctlGetEnAttente($inter)
+{
+    return getEnAttente($inter);
+}
+function ctlCreerCompte(){
+    if( in_array($_POST['categorie'],array("mecanicien","directeur","agent"))){
+        if($empl=chercherEmploye($_POST['nomEmploye'],$_POST['login']) ==null){
+            creerCompte($_POST['nomEmploye'],$_POST['login'],$_POST['motDePasse'],$_POST['categorie']);
+        }else{
+            throw new ExceptionEmployeExisteDeja("Employe avec ce nom ou login existe deja");
+        }
+    }else{
+        throw new ExceptionCategorie("Categorie non autorise");
+    }
+}
 
-	function ctlChercherIdentifiantsEmploye($login, $motdepasse)
-	{
-		if ($employe = getEmploye($login, $motdepasse)) {
-			return $employe;
-		} else {
-			throw  new ExceptionLogin("Login ou mot de passe incorrect");
-		}
-	}
+function ctlAfficherPageCorrespondante($login, $motdepasse)
+{
+    $employe = ctlChercherIdentifiantsEmploye($login, $motdepasse);
+    $_SESSION['empl'] = $employe;
+    switch ($employe->categorie) {
+        case'agent':
 
-	function ctlGestionFinanciere($id)
-	{
-		if ($client = ctlGetClient($id)) {
-			$_SESSION['client'] = $client;
-			$diff = getInterDiff($id);
-			$enatt = getInterEnAttente($id);
-			afficherGestionFinanciere($diff, $enatt);
-		} else {
-			throw new ExceptionIdNonTrouve("Id non trouvé");
-		}
-	}
+            afficherAccueilAgent($employe);
+            break;
+        case'mecanicien':
+            break;
+        case'directeur':
+            afficherAccueilDirecteur($employe);
+            break;
+    }
+}
 
-	function ctlMettreAJourClient()
-	{
-		$infos=array("nom","prenom","dateNaiss","adresse","numTel","mail","montantMax");
-		foreach ($infos as $i){
-			if(!empty($_POST[$i])){
+function ctlChercherIdentifiantsEmploye($login, $motdepasse)
+{
+    if ($employe = getEmploye($login, $motdepasse)) {
+        return $employe;
+    } else {
+        throw  new ExceptionLogin("Login ou mot de passe incorrect");
+    }
+}
 
-			}
-		}
+function ctlGestionFinanciere($id)
+{
+    if ($client = ctlGetClient($id)) {
+        $_SESSION['client'] = $client;
+        $diff = getInterDiff($id);
+        $enatt = getInterEnAttente($id);
+        afficherGestionFinanciere($diff, $enatt);
+    } else {
+        throw new ExceptionIdNonTrouve("Id non trouvé");
+    }
+}
 
-		foreach($_POST as $key=>$val){
-			if($val != $_SESSION[$key]){
+function ctlMettreAJourClient()
+{
+    $infos=array("nom","prenom","dateNaiss","adresse","numTel","mail","montantMax");
+    foreach ($infos as $i){
+        if(!empty($_POST[$i])){
 
-			}
-		}
-	}
+        }
+    }
 
-	function ctlSyntheseClient($id)
-	{
-		$client=ctlGetClient($id);
-		$_SESSION['client']=$client;
-		afficherSynthese($client);
-	}
+    foreach($_POST as $key=>$val){
+        if($val != $_SESSION[$key]){
 
-	function ctlGetClient($id)
-	{
-		$client = getClient($id);
-		return $client ? $client : false;
-	}
+        }
+    }
+}
 
-	function ctlGetIdClient($nom, $dateNaiss)
-	{
-		if ($client = getIdClient($nom, $dateNaiss)) {
-			$_SESSION['rechercheIdClient'] = $client;
-		} else {
-			throw new ExceptionClientNonTrouve("Aucun client " . $nom . " né le " . $dateNaiss . " trouvé.");
-		}
+function ctlSyntheseClient($id)
+{
+    $client=ctlGetClient($id);
+    $_SESSION['client']=$client;
+    afficherSynthese($client);
+}
 
-	}
+function ctlGetClient($id)
+{
+    $client = getClient($id);
+    return $client ? $client : false;
+}
 
-	function CtlErreur($erreur)
-	{
-		afficherErreurLogin($erreur);
-	}
+function ctlGetIdClient($nom, $dateNaiss)
+{
+    if ($client = getIdClient($nom, $dateNaiss)) {
+        $_SESSION['rechercheIdClient'] = $client;
+    } else {
+        throw new ExceptionClientNonTrouve("Aucun client " . $nom . " né le " . $dateNaiss . " trouvé.");
+    }
+
+}
+
+function CtlErreur($erreur)
+{
+    afficherErreurLogin($erreur);
+}
