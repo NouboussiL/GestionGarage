@@ -22,7 +22,7 @@
         <p>
             <label>Id client</label><input type="number" name="idclientGF" required/>
         </p>
-        <p><input type="submit" name="gestionF"/></p>';
+        <p><input type="submit" name="gestionF" value="Gestion financière"/></p>';
 
 		$contenu .= afficherErreur('erreurIdGF');
 
